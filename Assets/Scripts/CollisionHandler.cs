@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class CollisionHandler : MonoBehaviour
 {
+    [SerializeField] private int sceneLoadDelay = 2;
     private void OnCollisionEnter(Collision other)
     {
         switch (other.gameObject.tag)
@@ -11,19 +13,27 @@ public class CollisionHandler : MonoBehaviour
 
                 break;
             case "Finish":
-                NextLevel();
-                break;
-            case "Fuel":
-
+                HandleNextScene();
                 break;
             default:
-                ReloadLevel();
-
+                HandleCrash();
                 break;
         }
     }
 
-    private static void NextLevel()
+    private void HandleNextScene()
+    {
+        GetComponent<Movement>().enabled = false;
+        Invoke("NextLevel", sceneLoadDelay);
+    }
+
+    private void HandleCrash()
+    {
+        GetComponent<Movement>().enabled = false;
+        Invoke("ReloadLevel", 2f);
+    }
+
+    private void NextLevel()
     {
         int nextSceneID = SceneManager.GetActiveScene().buildIndex + 1;
         if (nextSceneID == SceneManager.sceneCountInBuildSettings)
@@ -33,7 +43,7 @@ public class CollisionHandler : MonoBehaviour
         SceneManager.LoadScene(nextSceneID);
     }
 
-    private static void ReloadLevel()
+    private void ReloadLevel()
     {
         int currentScene = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentScene);
