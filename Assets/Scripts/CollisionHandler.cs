@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CollisionHandler : MonoBehaviour
 {
@@ -10,14 +11,31 @@ public class CollisionHandler : MonoBehaviour
 
                 break;
             case "Finish":
-
+                NextLevel();
                 break;
             case "Fuel":
 
                 break;
             default:
-                Debug.Log("Crash boom");
+                ReloadLevel();
+
                 break;
         }
+    }
+
+    private static void NextLevel()
+    {
+        int nextSceneID = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextSceneID == SceneManager.sceneCountInBuildSettings)
+        {
+            nextSceneID = 0;
+        }
+        SceneManager.LoadScene(nextSceneID);
+    }
+
+    private static void ReloadLevel()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
     }
 }
