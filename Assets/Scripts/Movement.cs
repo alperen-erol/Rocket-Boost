@@ -7,6 +7,11 @@ public class Movement : MonoBehaviour
     [SerializeField] InputAction rotation;
     [SerializeField] float thrustStr = 10f;
     [SerializeField] float rotationStr = 10f;
+    [SerializeField] AudioClip mainEngineSFX;
+    [SerializeField] ParticleSystem mainEngineParticles;
+    [SerializeField] ParticleSystem rightEngineParticles;
+    [SerializeField] ParticleSystem leftEngineParticles;
+
 
     AudioSource audioSource;
 
@@ -25,30 +30,52 @@ public class Movement : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        ThrustHandle();
+        HandleThrust();
         RotationHandle();
     }
 
-    private void ThrustHandle()
+    private void HandleThrust()
     {
         if (thrust.IsPressed())
         {
             rb.AddRelativeForce(Vector3.up * thrustStr * Time.fixedDeltaTime);
             if (!audioSource.isPlaying)
             {
-                audioSource.Play();
+                audioSource.PlayOneShot(mainEngineSFX);
             }
+            mainEngineParticles.Play();
         }
         else
         {
             audioSource.Stop();
+            mainEngineParticles.Stop();
         }
     }
     private void RotationHandle()
     {
         rb.freezeRotation = true;
         float rotationInput = rotation.ReadValue<float>() * -1;
-        transform.Rotate(Vector3.forward * rotationInput * rotationStr * Time.fixedDeltaTime);
+        if (rotationInput > 0)
+        {
+            transform.Rotate(Vector3.forward * Time.fixedDeltaTime * rotationStr * rotationInput);
+            if (!rightEngineParticles.isPlaying)
+            {
+                rightEngineParticles.Play();
+            }
+        }
+        else if (rotationInput < 0)
+        {
+            transform.Rotate(Vector3.forward * Time.fixedDeltaTime * rotationStr * rotationInput);
+            if (!leftEngineParticles.isPlaying)
+            {
+                leftEngineParticles.Play();
+            }
+        }
+        else
+        {
+            leftEngineParticles.Stop();
+            rightEngineParticles.Stop();
+        }
         rb.freezeRotation = false;
 
     }
